@@ -1,0 +1,665 @@
+:root {
+    --primary-color: #1a3a6a;
+    --secondary-color: #4ea1ff;
+    --accent-color: #6366f1;
+    --background-color: #f8fafc;
+    --sidebar-bg: #1e293b;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --hover-bg: #f1f5f9;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 280px;
+    background: var(--sidebar-bg);
+    height: 100vh;
+    position: fixed;
+    padding: 1.5rem;
+    transition: var(--transition);
+}
+
+.sidebar-header {
+    padding: 1rem 0;
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+    height: 50px;
+    width: auto;
+    filter: brightness(0) invert(1);
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav li {
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-nav a, .sidebar-nav button {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: var(--transition);
+    font-weight: 500;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sidebar-nav a:hover, .sidebar-nav button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateX(5px);
+}
+
+.sidebar-nav a.active {
+    background: var(--accent-color);
+    color: white;
+}
+
+.sidebar-nav i {
+    width: 24px;
+    margin-right: 12px;
+    font-size: 1.1rem;
+}
+
+/* Main Content Styles */
+.main-content {
+    margin-left: 280px;
+    padding: 2rem;
+    max-width: 1600px;
+}
+
+.main-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.main-header h1 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin: 0;
+    font-weight: 600;
+}
+
+.main-header p {
+    margin: 0.5rem 0 0 0;
+    color: var(--text-secondary);
+}
+
+/* Quick Stats Styles */
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease;
+    position: relative;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.1));
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card:hover::before {
+    transform: translateX(100%);
+}
+
+.stat-card i {
+    font-size: 2rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--hover-bg);
+    color: var(--accent-color);
+}
+
+.stat-info h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.stat-info p {
+    margin: 0.25rem 0 0 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Today's Schedule Styles */
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.card h3 {
+    color: var(--primary-color);
+    margin: 0 0 1.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.card h3 i {
+    color: var(--accent-color);
+}
+
+.today-schedule {
+    display: grid;
+    gap: 1rem;
+}
+
+.lesson {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    animation: slideIn 0.3s ease-out;
+}
+
+.lesson:last-child {
+    margin-bottom: 0;
+}
+
+.lesson-time {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    padding-left: 0.5rem;
+}
+
+.lesson-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--hover-bg);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    position: relative;
+}
+
+.lesson-content:hover {
+    transform: translateX(3px);
+    background-color: var(--hover-bg);
+}
+
+.lesson::before {
+    display: none;
+}
+
+.lesson:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.lesson .time {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.lesson .course {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+    opacity: 0.9;
+}
+
+.lesson .class {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin: 0;
+}
+
+/* User Profile Styles */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--hover-bg);
+    border-radius: 50px;
+    transition: var(--transition);
+}
+
+.user-profile:hover {
+    background: var(--border-color);
+    transform: translateY(-2px);
+}
+
+.user-profile span {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .quick-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 1.25rem;
+    }
+
+    .lesson {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .lesson-actions {
+        width: 100%;
+    }
+
+    .lesson-actions .btn {
+        width: 100%;
+    }
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: slideIn 0.5s ease-out forwards;
+}
+
+/* Ajout des styles pour la grille principale et les graphiques */
+.main-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.attendance-stats {
+    height: 300px;
+    position: relative;
+}
+
+.upcoming-classes {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.upcoming-lesson {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--hover-bg);
+    border-radius: 12px;
+    transition: var(--transition);
+}
+
+.upcoming-lesson:hover {
+    transform: translateX(5px);
+    background: var(--border-color);
+}
+
+.lesson-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 8px;
+    min-width: 60px;
+}
+
+.lesson-date .day {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.lesson-date .month {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.lesson-info h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.lesson-info p {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.no-lessons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: var(--hover-bg);
+    border-radius: 12px;
+    color: var(--text-secondary);
+}
+
+.no-lessons i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--accent-color);
+}
+
+.lesson {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem;
+    border-radius: 12px;
+    color: white;
+    margin-bottom: 1rem;
+    transition: var(--transition);
+}
+
+.lesson:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.lesson-info .time {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.lesson-info .course {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+    opacity: 0.9;
+}
+
+.lesson-info .class {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.lesson-actions .btn {
+    color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.lesson-actions .btn:hover {
+    background: white;
+    transform: translateY(-2px);
+}
+
+/* Styles pour la carte des cours d'aujourd'hui */
+.today-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.today-card .card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background: white;
+}
+
+.today-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.today-card h3 i {
+    color: var(--accent-color);
+    font-size: 1.5rem;
+}
+
+.date-subtitle {
+    margin-left: auto;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: normal;
+}
+
+.today-schedule {
+    padding: 1.5rem;
+}
+
+.lesson {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    animation: slideIn 0.3s ease-out;
+}
+
+.lesson:last-child {
+    margin-bottom: 0;
+}
+
+.lesson-time {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    padding-left: 0.5rem;
+}
+
+.lesson-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--hover-bg);
+    border-radius: 12px;
+    padding: 1.25rem;
+    border-left: 4px solid transparent;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    position: relative;
+}
+
+.lesson-content:hover {
+    transform: translateX(3px);
+    background-color: #f8fafc;
+}
+
+.lesson-main-info {
+    flex: 1;
+}
+
+.course-name {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.class-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.attendance-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.attendance-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.no-lessons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 0;
+    text-align: center;
+}
+
+.no-lessons-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.no-lessons i {
+    font-size: 3rem;
+    color: var(--accent-color);
+    opacity: 0.5;
+}
+
+.no-lessons p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.free-day {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .lesson-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .lesson-actions {
+        width: 100%;
+    }
+
+    .attendance-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .class-info {
+        justify-content: center;
+    }
+}

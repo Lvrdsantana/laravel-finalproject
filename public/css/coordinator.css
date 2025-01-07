@@ -1,0 +1,169 @@
+
+
+
+/* CSS pour la gestion des emplois du temps */
+
+.student-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.attendance-badge {
+    display: inline-block;
+    background-color: #2ecc71;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-top: 5px;
+    pointer-events: none;
+}
+
+.lesson.special-course {
+    border: 2px solid #2ecc71;
+}
+
+.lesson {
+    position: relative;
+}
+
+.lesson[onclick] {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.lesson[onclick]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #2ecc71;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.lesson[onclick]:hover::before {
+    opacity: 1;
+}
+
+.lesson[onclick]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.lesson-actions {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    gap: 5px;
+    z-index: 100;
+}
+
+.lesson-actions button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lesson-actions button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.edit-lesson {
+    background-color: rgba(52, 152, 219, 0.8) !important;
+}
+
+.delete-lesson {
+    background-color: rgba(231, 76, 60, 0.8) !important;
+}
+
+.attendance-badge {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: #2ecc71;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.clickable-lesson {
+    position: relative;
+    cursor: pointer !important;
+    transition: all 0.3s ease;
+}
+
+.clickable-lesson:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.clickable-lesson::after {
+    content: 'Saisir les présences';
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: rgba(46, 204, 113, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.clickable-lesson:hover::after {
+    opacity: 1;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+}
+
+.close-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-modal:hover {
+    color: black;
+} 
