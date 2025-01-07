@@ -1,7 +1,8 @@
 <?php
 
+// Importation des contrôleurs nécessaires
 use App\Http\Controllers\ClassController;
-use App\Http\Controllers\CoordinatorController;
+use App\Http\Controllers\CoordinatorController; 
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -19,53 +20,61 @@ use App\Http\Controllers\ParentDashboardController;
 use App\Http\Controllers\CourseController;
 
 
-
+// Route par défaut - Page d'accueil
 Route::get('/', function () {
     return view('welcome');
 });
-// login page homepage
+
+// Redirection vers la page de connexion comme page d'accueil
 Route::get('/', function () {
     return view('login');
 });
+
+// Routes d'authentification
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
+// Groupe de routes protégées par authentification
 Route::middleware(['auth'])->group(function () {
+    // Routes du tableau de bord principal
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::get('/student/dashboard', [AuthController::class, 'studentDashboard'])->name('studentDashboard');
     Route::get('/teacher/dashboard', [AuthController::class, 'teacherDashboard'])->name('teacherdashboard');
     Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
+
+    // Gestion des utilisateurs (CRUD)
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    
+    // Déconnexion
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Routes pour l'emploi du temps des coordinateurs
     Route::get('/coordinators-timetable', [CoordinatorController::class, 'showTimetable'])->name('coordinators.timetable');
+
+    // Routes des ressources (CRUD automatique)
     Route::resource('parents', ParentController::class);
-    // Coordinators
     Route::resource('coordinators', CoordinatorController::class);
-
-    // Teachers
     Route::resource('teachers', TeacherController::class);
-
-    // Students
     Route::resource('students', StudentController::class);
     Route::resource('classes', ClassController::class);
 
     
-    // route timetable VRAI ROUTE
+    // Routes détaillées pour la gestion des emplois du temps
     Route::get('/coordinators-timetable', [TimetableController::class, 'index'])->name('coordinators.timetable');
     Route::post('/coordinators-timetable', [TimetableController::class, 'store'])->name('coordinators.timetable.store');
     Route::post('/coordinator/timetable/update/{id}', [TimetableController::class, 'update'])->name('coordinator.timetable.update');
     Route::delete('/coordinator/timetable/delete/{id}', [TimetableController::class, 'delete'])->name('coordinator.timetable.delete');
 
-    // Routes pour les étudiants
+    // Groupe de routes pour les étudiants
     Route::prefix('student')->group(function () {
         Route::get('/timetable', [StudentDashboardController::class, 'timetable'])->name('student.timetable');
         Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('student.profile');
     });
 
-    // Routes pour les enseignants
+    // Groupe de routes pour les enseignants
     Route::prefix('teacher')->group(function () {
         Route::get('/', [TeacherDashboardController::class, 'index'])->name('teacher.dashboard');
         Route::get('/dashboard', [AuthController::class, 'teacherDashboard'])->name('teacher.dashboard');
@@ -78,7 +87,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     
-    // Routes pour les notifications
+    // Système de notifications
     Route::get('/notifications', function () {
         $notifications = auth()->user()->notifications()->paginate(10);
         return view('notifications.index', compact('notifications'));
@@ -95,7 +104,7 @@ Route::middleware(['auth'])->group(function () {
     })->name('notifications.mark-all-read');
 });
 
-// Routes pour l'emploi du temps sans middleware
+// Routes publiques pour l'emploi du temps
 Route::group([], function () {
     Route::post('/coordinators/timetable', [TimetableController::class, 'store'])->name('coordinators.timetable.store');
     Route::put('/coordinators/timetable/{id}', [TimetableController::class, 'update'])->name('coordinators.timetable.update');
@@ -103,6 +112,7 @@ Route::group([], function () {
     Route::get('/coordinators/timetable/{id}/edit', [TimetableController::class, 'edit'])->name('coordinators.timetable.edit');
 });
 
+// Routes pour la gestion des présences par les coordinateurs
 Route::middleware(['auth'])->group(function () {
     Route::get('/coordinator/attendance/{timetable}', [CoordinatorController::class, 'showAttendance'])
         ->name('coordinator.attendance');
@@ -122,7 +132,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('attendance.export');
 });
 
-// Ajouter dans le groupe middleware auth
+// Routes pour les statistiques générales
 Route::prefix('stats')->name('stats.')->middleware('auth')->group(function () {
     Route::get('/', [StatsController::class, 'index'])->name('index');
     Route::get('/student-attendance', [StatsController::class, 'studentAttendance'])->name('student-attendance');
@@ -134,6 +144,7 @@ Route::prefix('stats')->name('stats.')->middleware('auth')->group(function () {
 });
 
 
+// Routes pour la justification des absences
 Route::middleware(['auth'])->group(function () {
     Route::get('/attendance/{attendance}/justify', [CoordinatorController::class, 'showJustifyAbsence'])
         ->name('coordinator.show-justify-absence');
@@ -143,22 +154,24 @@ Route::middleware(['auth'])->group(function () {
         ->name('coordinator.attendance.index');
 });
 
+// Routes pour le tableau de bord et le profil étudiant
 Route::middleware(['auth',])->group(function () {
     Route::get('/student/dashboard', [StudentDashboardController::class, 'index'])->name('studentDashboard');
     Route::get('/student/profile', [StudentDashboardController::class, 'profile'])->name('student.profile');
     Route::put('/student/profile/update', [StudentController::class, 'updateProfile'])->name('student.profile.update');
 });
 
+// Route de recherche d'utilisateurs
 Route::get('/users/search', [UserController::class, 'search'])->name('users.search');
 
-// Routes pour le profil enseignant
+// Routes pour la gestion du profil enseignant
 Route::middleware(['auth',])->group(function () {
     Route::put('/teacher/profile/update', [TeacherProfileController::class, 'update'])->name('teacher.profile.update');
     Route::post('/teacher/profile/avatar', [TeacherProfileController::class, 'updateAvatar'])->name('teacher.profile.avatar');
 });
 
+// Routes pour l'historique des emplois du temps
 Route::middleware(['auth', ])->group(function () {
-    // Routes pour l'historique des emplois du temps
     Route::get('/coordinator/timetable/history', [CoordinatorTimetableController::class, 'historyIndex'])
          ->name('coordinator.timetable.history.index');
     Route::get('/coordinator/timetable/{timetable}/history', [CoordinatorTimetableController::class, 'history'])
@@ -169,27 +182,29 @@ Route::middleware(['auth', ])->group(function () {
          ->name('coordinator.timetable.history.export');
 });
 
+// Routes pour le tableau de bord parent
 Route::middleware(['auth', ])->group(function () {
     Route::get('/parent/dashboard', [ParentDashboardController::class, 'index'])->name('parent.dashboard');
 });
 
-// Routes pour l'enseignant
+// Routes complètes pour les enseignants
 Route::middleware(['auth', ])->group(function () {
     Route::get('/teacher/dashboard', [TeacherDashboardController::class, 'index'])->name('teacher.dashboard');
     Route::get('/teacher/timetable', [TeacherDashboardController::class, 'timetable'])->name('teacher.timetable');
     Route::get('/teacher/profile', [TeacherDashboardController::class, 'profile'])->name('teacher.profile');
     Route::get('/teacher/notifications', [TeacherDashboardController::class, 'notifications'])->name('teacher.notifications');
     
-    // Routes pour la gestion des présences
+    // Gestion des présences par les enseignants
     Route::get('/attendance/{timetable}', [TeacherDashboardController::class, 'showAttendance'])->name('attendance.show');
     Route::post('/attendance/{timetable}', [TeacherDashboardController::class, 'storeAttendance'])->name('attendance.store');
 });
 
+// Routes pour la gestion des classes
 Route::middleware(['auth',])->group(function () {
     Route::resource('classes', ClassController::class);
 });
 
-// Course routes
+// Routes pour la gestion des cours
 Route::middleware(['auth',])->group(function () {
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
