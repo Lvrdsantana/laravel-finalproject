@@ -204,14 +204,12 @@ Le projet IFRAN est un système de gestion scolaire complet qui répond aux beso
 - Compatibilité navigateurs
 
 ### Backend
-- **Framework** : Laravel 10
-- **Base de données** : MySQL
-- **Cache** : Redis
-- **Serveur** : Apache/Nginx
+- **Framework** : Laravel 11.21.0
+- **Base de données** : SQLite
+- **Serveur** : Local
 
 **Motivation** :
 - Framework PHP mature et sécurisé
-- ORM Eloquent puissant
 - Système de migration robuste
 - Excellente documentation
 
@@ -277,7 +275,7 @@ npm run build
 ```
 
 ## 7. Méthode de Travail
-- Méthodologie Agile/Scrum
+- Méthodologie Scrum
 - Sprints de 2 semaines
 - Code review systématique
 
@@ -287,7 +285,7 @@ npm run build
 - **Versioning** : Git, GitHub
 - **CI/CD** : GitHub Actions
 - **Tests** : Environnement de test local
-- **Documentation** : PHPDoc
+- **Documentation** : Laraveldocs 
 
 ## 9. Évaluation du Temps de Travail
 
