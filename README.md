@@ -176,7 +176,7 @@ npm run build
 **Nom du projet** : IFRAN School Management System  
 **Date** : 2024  
 **Développeurs** : [ABOYA CYRIL]  
-**Adresse Github** : [À compléter]
+**Adresse Github** : [[https://github.com/Lvrdsantana/laravel-finalproject](https://github.com/Lvrdsantana/laravel-finalproject)]
 
 ## 2. Analyse Client
 Le projet IFRAN est un système de gestion scolaire complet qui répond aux besoins suivants :
