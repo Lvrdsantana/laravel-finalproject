@@ -18,7 +18,6 @@ class courses extends Model
         'other_columns'
     ];
     
-    // Si la table dans la base de données ne suit pas la convention "snake_case", ajoute ceci
     protected $table = 'courses';
 
     public function teacher()

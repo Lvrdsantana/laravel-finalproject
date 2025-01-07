@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modèle Parent - Gère les parents des étudiants
+ * 
+ * Ce modèle représente un parent d'un étudiant,
+ * associé à un utilisateur.
+ */
 class ParentModel extends Model
 {
     use HasFactory;

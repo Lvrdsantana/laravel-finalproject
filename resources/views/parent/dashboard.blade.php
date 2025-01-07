@@ -3,8 +3,9 @@
 @section('title', 'Parent Dashboard')
 
 @section('content')
+<!-- Conteneur principal avec padding vertical -->
 <div class="container py-4">
-    <!-- Dashboard header -->
+    <!-- En-tête du tableau de bord avec le titre et les boutons d'action -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
@@ -12,6 +13,7 @@
                     <i class="fas fa-home text-primary me-2"></i>
                     Dashboard
                 </h1>
+                <!-- Boutons d'action : profil et dernière mise à jour -->
                 <div class="d-flex align-items-center gap-3">
                     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
                         <i class="fas fa-user me-2"></i>
@@ -26,10 +28,11 @@
         </div>
     </div>
 
-    <!-- Profile Modal -->
+    <!-- Modal pour afficher le profil de l'utilisateur -->
     <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
+                <!-- En-tête du modal -->
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="profileModalLabel">
                         <i class="fas fa-user-circle me-2"></i>
@@ -37,7 +40,9 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <!-- Corps du modal avec les informations du profil -->
                 <div class="modal-body">
+                    <!-- Avatar et nom de l'utilisateur -->
                     <div class="text-center mb-4">
                         <div class="avatar-circle mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
                             {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
@@ -46,7 +51,9 @@
                         <span class="badge bg-primary">Parent</span>
                     </div>
 
+                    <!-- Informations détaillées du profil -->
                     <div class="row g-3">
+                        <!-- Email -->
                         <div class="col-12">
                             <div class="card bg-light border-0">
                                 <div class="card-body">
@@ -59,6 +66,7 @@
                             </div>
                         </div>
 
+                        <!-- Liste des élèves associés -->
                         <div class="col-12">
                             <div class="card bg-light border-0">
                                 <div class="card-body">
@@ -85,6 +93,7 @@
                             </div>
                         </div>
 
+                        <!-- Date de création du compte -->
                         <div class="col-12">
                             <div class="card bg-light border-0">
                                 <div class="card-body">
@@ -98,6 +107,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- Pied du modal -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -105,10 +115,10 @@
         </div>
     </div>
 
-    <!-- Main content -->
+    <!-- Contenu principal : boucle sur chaque élève -->
     @foreach($studentsData as $data)
     <div class="student-section mb-4">
-        <!-- Student section header -->
+        <!-- En-tête de la section élève -->
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-white py-3">
                 <div class="d-flex justify-content-between align-items-center">
@@ -131,8 +141,9 @@
             </div>
         </div>
 
-        <!-- Quick stats -->
+        <!-- Statistiques rapides -->
         <div class="row mb-4">
+            <!-- Taux de présence -->
             <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -148,6 +159,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Nombre total d'absences -->
             <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -163,6 +175,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Nombre de cours cette semaine -->
             <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -178,6 +191,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Prochain cours -->
             <div class="col-md-3 col-sm-6">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -195,9 +209,9 @@
             </div>
         </div>
 
-        <!-- Main grid -->
+        <!-- Grille principale -->
         <div class="row">
-            <!-- Timetable -->
+            <!-- Emploi du temps -->
             <div class="col-lg-7 mb-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-white py-3">
@@ -281,7 +295,7 @@
                 </div>
             </div>
 
-            <!-- Absences -->
+            <!-- Section des absences -->
             <div class="col-lg-5 mb-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-white py-3">
@@ -301,9 +315,9 @@
                         </div>
                     </div>
                     <div class="card-body p-0">
-                        <!-- Absences accordion -->
+                        <!-- Accordéon des absences -->
                         <div class="accordion" id="absencesAccordion{{ $data['student']->id }}">
-                            <!-- Unjustified absences -->
+                            <!-- Section des absences non justifiées -->
                             <div class="accordion-item border-0">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse" 
@@ -355,7 +369,7 @@
                                 </div>
                             </div>
 
-                            <!-- Justified absences -->
+                            <!-- Section des absences justifiées -->
                             <div class="accordion-item border-0">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
@@ -605,6 +619,7 @@ body {
     transform: translateX(0);
 }
 
+/* Styles de base pour les éléments d'interface */
 .avatar-circle {
     width: 45px;
     height: 45px;
@@ -669,6 +684,7 @@ body {
     font-size: 0.875rem;
 }
 
+/* Adaptations responsives */
 @media (max-width: 768px) {
     .avatar-circle {
         width: 35px;

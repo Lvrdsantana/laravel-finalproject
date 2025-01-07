@@ -12,8 +12,22 @@ use Illuminate\Support\Facades\Auth;
 use PDF;
 use Excel;
 
+/**
+ * Contrôleur pour la gestion des emplois du temps par les coordinateurs
+ * 
+ * Ce contrôleur gère :
+ * - L'affichage et la modification des emplois du temps
+ * - L'historique des modifications
+ * - L'export des données en PDF et Excel
+ */
 class CoordinatorTimetableController extends Controller
 {
+    /**
+     * Affiche la page principale des emplois du temps
+     * Inclut la liste des cours, classes, professeurs et l'historique récent
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         $courses = Courses::all();
@@ -38,6 +52,12 @@ class CoordinatorTimetableController extends Controller
         ));
     }
 
+    /**
+     * Crée un nouveau créneau dans l'emploi du temps
+     * 
+     * @param Request $request Les données du formulaire
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -54,6 +74,12 @@ class CoordinatorTimetableController extends Controller
         return redirect()->back()->with('success', 'Emploi du temps créé avec succès');
     }
 
+    /**
+     * Affiche l'historique des modifications pour un emploi du temps spécifique
+     * 
+     * @param Timetable $timetable L'emploi du temps concerné
+     * @return \Illuminate\View\View
+     */
     public function history(Timetable $timetable)
     {
         $histories = $timetable->histories()
@@ -64,6 +90,12 @@ class CoordinatorTimetableController extends Controller
         return view('coordinator.timetable.history', compact('timetable', 'histories'));
     }
 
+    /**
+     * Filtre l'historique selon différents critères (AJAX)
+     * 
+     * @param Request $request Les critères de filtrage
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function filterHistory(Request $request)
     {
         $query = TimetableHistory::with(['modifier', 'class', 'course', 'teacher'])
@@ -92,6 +124,13 @@ class CoordinatorTimetableController extends Controller
         return response()->json($histories);
     }
 
+    /**
+     * Met à jour un créneau d'emploi du temps existant
+     * 
+     * @param Request $request Les nouvelles données
+     * @param Timetable $timetable Le créneau à modifier
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Timetable $timetable)
     {
         $validated = $request->validate([
@@ -108,6 +147,12 @@ class CoordinatorTimetableController extends Controller
         return redirect()->back()->with('success', 'Emploi du temps mis à jour avec succès');
     }
 
+    /**
+     * Supprime un créneau d'emploi du temps
+     * 
+     * @param Timetable $timetable Le créneau à supprimer
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Timetable $timetable)
     {
         $timetable->delete();
@@ -115,6 +160,12 @@ class CoordinatorTimetableController extends Controller
         return redirect()->back()->with('success', 'Emploi du temps supprimé avec succès');
     }
 
+    /**
+     * Affiche la page principale de l'historique avec des filtres
+     * 
+     * @param Request $request Les critères de filtrage
+     * @return \Illuminate\View\View
+     */
     public function historyIndex(Request $request)
     {
         $query = TimetableHistory::with(['modifier', 'class', 'course', 'teacher', 'timetable']);
@@ -183,6 +234,12 @@ class CoordinatorTimetableController extends Controller
         ));
     }
 
+    /**
+     * Exporte l'historique au format PDF ou Excel
+     * 
+     * @param Request $request Les critères d'export
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function exportHistory(Request $request)
     {
         $format = $request->format ?? 'pdf';

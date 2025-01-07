@@ -4,6 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modèle Justification - Gère les justifications d'absences
+ * 
+ * Ce modèle représente une justification d'absence pour un étudiant,
+ * associée à une présence et un enseignant.
+ */
 class Justification extends Model
 {
     protected $fillable = [

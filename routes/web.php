@@ -133,6 +133,7 @@ Route::prefix('stats')->name('stats.')->middleware('auth')->group(function () {
     Route::get('/data/course-volume', [StatsController::class, 'getCourseVolumeData'])->name('data.course-volume');
 });
 
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/attendance/{attendance}/justify', [CoordinatorController::class, 'showJustifyAbsence'])
         ->name('coordinator.show-justify-absence');

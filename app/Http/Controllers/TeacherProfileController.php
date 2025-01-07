@@ -8,8 +8,21 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Log;
 
+/** inachevé
+ * Contrôleur pour gérer le profil de l'enseignant
+ * 
+ * Ce contrôleur permet de :
+ * - Mettre à jour les informations du profil
+ * - Mettre à jour l'avatar du profil
+ */
 class TeacherProfileController extends Controller
 {
+    /**
+     * Mettre à jour les informations du profil
+     * 
+     * @param Request $request Les données du formulaire
+     * @return \Illuminate\Http\RedirectResponse Redirection vers la page de profil
+     */
     public function update(Request $request)
     {
         try {
@@ -48,6 +61,12 @@ class TeacherProfileController extends Controller
         }
     }
 
+    /**
+     * Mettre à jour l'avatar du profil
+     * 
+     * @param Request $request Les données du formulaire
+     * @return \Illuminate\Http\RedirectResponse Redirection vers la page de profil
+     */
     public function updateAvatar(Request $request)
     {
         try {

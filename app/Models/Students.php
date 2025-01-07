@@ -246,7 +246,7 @@ class Students extends Model
             // Calculer la note sur 20
             $grade = $totalSessions > 0 ? (20 * $presentSessions / $totalSessions) : 0;
 
-            // Déterminer si l'étudiant est droppé (taux < 30% et au moins 5 sessions)
+            // Déterminer si l'étudiant est dropp
             $isDropped = $totalSessions > 1 && $rate < 30;
 
             \Log::info('Attendance Stats Calculation', [

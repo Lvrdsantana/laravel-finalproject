@@ -5,12 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Students;
 use App\Models\User;
-use App\Models\classes;
+use App\Models\classes; 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Contrôleur pour la gestion des étudiants
+ * 
+ * Ce contrôleur gère toutes les opérations liées aux étudiants :
+ * - Tableau de bord étudiant
+ * - CRUD (Create, Read, Update, Delete) des étudiants
+ * - Mise à jour du profil étudiant
+ */
 class StudentController extends Controller
 {
+    /**
+     * Affiche le tableau de bord de l'étudiant connecté
+     * 
+     * @return \Illuminate\View\View Vue du tableau de bord avec les statistiques
+     */
     public function dashboard()
     {
         $student = auth()->user()->student;
@@ -29,18 +42,34 @@ class StudentController extends Controller
         return view('StudentDashboard', compact('student', 'stats'));
     }
 
+    /**
+     * Affiche la liste de tous les étudiants
+     * 
+     * @return \Illuminate\View\View Vue avec la liste des étudiants
+     */
     public function index()
     {
         $students = students::with('user', 'class')->get();
         return view('students.index', compact('students'));
     }
 
+    /**
+     * Affiche le formulaire de création d'un étudiant
+     * 
+     * @return \Illuminate\View\View Vue du formulaire de création
+     */
     public function create()
     {
         $classes = classes::all();
         return view('students.create', compact('classes'));
     }
 
+    /**
+     * Enregistre un nouvel étudiant dans la base de données
+     * 
+     * @param Request $request Les données du formulaire
+     * @return \Illuminate\Http\RedirectResponse Redirection avec message de succès
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -56,12 +85,24 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student created successfully.');
     }
 
+    /**
+     * Affiche les détails d'un étudiant spécifique
+     * 
+     * @param int $id L'identifiant de l'étudiant
+     * @return \Illuminate\View\View Vue avec les détails de l'étudiant
+     */
     public function show($id)
     {
         $student = students::with('user', 'class')->findOrFail($id);
         return view('students.show', compact('student'));
     }
 
+    /**
+     * Affiche le formulaire d'édition d'un étudiant
+     * 
+     * @param int $id L'identifiant de l'étudiant à modifier
+     * @return \Illuminate\View\View Vue du formulaire d'édition
+     */
     public function edit($id)
     {
         $student = students::findOrFail($id);
@@ -69,6 +110,13 @@ class StudentController extends Controller
         return view('students.edit', compact('student', 'classes'));
     }
 
+    /**
+     * Met à jour les informations d'un étudiant
+     * 
+     * @param Request $request Les nouvelles données
+     * @param int $id L'identifiant de l'étudiant
+     * @return \Illuminate\Http\RedirectResponse Redirection avec message de succès
+     */
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -85,6 +133,12 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student updated successfully.');
     }
 
+    /**
+     * Supprime un étudiant de la base de données
+     * 
+     * @param int $id L'identifiant de l'étudiant à supprimer
+     * @return \Illuminate\Http\RedirectResponse Redirection avec message de succès
+     */
     public function destroy($id)
     {
         $student = students::findOrFail($id);
@@ -93,6 +147,12 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Student deleted successfully.');
     }
 
+    /**
+     * Met à jour le profil de l'étudiant connecté
+     * 
+     * @param Request $request Les données du formulaire
+     * @return \Illuminate\Http\RedirectResponse Redirection avec message de succès/erreur
+     */
     public function updateProfile(Request $request)
     {
         $request->validate([

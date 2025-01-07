@@ -3,20 +3,34 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Timetable;
-use App\Models\Attendance;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Days;
-use App\Models\TimeSlots;
-use App\Models\Students;
-use App\Models\Teachers;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use App\Notifications\AbsenceJustifiedNotification;
-use App\Models\Justification;
+use App\Models\Timetable; // Modèle pour gérer les emplois du temps
+use App\Models\Attendance; // Modèle pour gérer les présences
+use Illuminate\Support\Facades\Auth; // Gestion de l'authentification
+use App\Models\Days; // Modèle pour les jours de la semaine
+use App\Models\TimeSlots; // Modèle pour les créneaux horaires
+use App\Models\Students; // Modèle pour les étudiants
+use App\Models\Teachers; // Modèle pour les enseignants
+use Illuminate\Support\Facades\DB; // Gestion de la base de données
+use Illuminate\Support\Facades\Log; // Gestion des logs
+use App\Notifications\AbsenceJustifiedNotification; // Notification pour les absences justifiées
+use App\Models\Justification; // Modèle pour les justifications d'absence
 
+/**
+ * Contrôleur gérant les fonctionnalités des coordinateurs
+ * 
+ * Ce contrôleur gère :
+ * - L'affichage et la gestion des emplois du temps
+ * - La gestion des présences pour les cours spéciaux (Workshop, E-Learning)
+ * - La justification des absences
+ * - Le suivi des absences
+ */
 class CoordinatorController extends Controller
 {
+    /**
+     * Vérifie que l'utilisateur connecté a bien le rôle de coordinateur
+     * 
+     * @return \Illuminate\Http\RedirectResponse|null Redirige si pas coordinateur, null sinon
+     */
     private function checkCoordinatorRole()
     {
         if (Auth::user()->role !== 'coordinators') {
@@ -25,6 +39,11 @@ class CoordinatorController extends Controller
         return null;
     }
 
+    /**
+     * Affiche l'emploi du temps avec toutes les informations nécessaires
+     * 
+     * @return \Illuminate\View\View Vue de l'emploi du temps
+     */
     public function showTimetable()
     {
         $timetables = Timetable::with(['class', 'course', 'teacher.user'])
@@ -36,12 +55,18 @@ class CoordinatorController extends Controller
         return view('CoodinatorsTimetable', compact('timetables', 'days', 'time_slots', 'specialCourses'));
     }
 
+    /**
+     * Affiche la page de gestion des présences pour un créneau spécifique
+     * 
+     * @param Timetable $timetable Le créneau concerné
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function showAttendance(Timetable $timetable)
     {
         $check = $this->checkCoordinatorRole();
         if ($check) return $check;
 
-        // Vérifier si c'est un cours spécial
+        // Vérifier si c'est un cours spécial (seuls les coordinateurs peuvent gérer ces présences)
         if (!in_array($timetable->course->name, ['Workshop', 'E-Learning'])) {
             return redirect()->back()->with('error', 'Ce cours ne nécessite pas de saisie de présence par le coordinateur');
         }
@@ -54,16 +79,24 @@ class CoordinatorController extends Controller
         return view('coordinator.attendance', compact('timetable', 'students', 'attendances'));
     }
 
+    /**
+     * Enregistre les présences pour un créneau donné
+     * 
+     * @param Request $request La requête contenant les données de présence
+     * @param Timetable $timetable Le créneau concerné
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storeAttendance(Request $request, Timetable $timetable)
     {
         $check = $this->checkCoordinatorRole();
         if ($check) return $check;
 
-        // Vérifier si c'est un cours spécial
+        // Vérification du type de cours
         if (!in_array($timetable->course->name, ['Workshop', 'E-Learning'])) {
             return redirect()->back()->with('error', 'Ce cours ne nécessite pas de saisie de présence par le coordinateur');
         }
 
+        // Validation des données reçues
         $request->validate([
             'attendance' => 'required|array',
             'attendance.*' => 'required|in:present,absent,late'
@@ -72,10 +105,10 @@ class CoordinatorController extends Controller
         try {
             \DB::beginTransaction();
 
-            // Récupérer l'ID du professeur associé à l'utilisateur coordinateur
+            // Récupération du professeur responsable
             $teacher = Teachers::where('user_id', Auth::id())->first();
             
-            // Si le coordinateur n'a pas d'entrée dans la table teachers, utiliser le professeur du cours
+            // Fallback sur le professeur du cours si nécessaire
             if (!$teacher) {
                 $teacher = $timetable->teacher;
                 
@@ -84,8 +117,9 @@ class CoordinatorController extends Controller
                 }
             }
 
+            // Traitement de chaque étudiant
             foreach ($request->attendance as $studentId => $status) {
-                // Vérifier si l'étudiant existe et appartient à la classe
+                // Vérification de l'appartenance de l'étudiant à la classe
                 $student = Students::where('id', $studentId)
                                 ->where('class_id', $timetable->class_id)
                                 ->first();
@@ -95,6 +129,7 @@ class CoordinatorController extends Controller
                 }
 
                 try {
+                    // Création ou mise à jour de la présence
                     Attendance::updateOrCreate(
                         [
                             'timetable_id' => $timetable->id,
@@ -121,6 +156,12 @@ class CoordinatorController extends Controller
         }
     }
 
+    /**
+     * Récupère les informations d'un créneau pour l'édition
+     * 
+     * @param int $id L'ID du créneau
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function edit($id)
     {
         try {
@@ -135,7 +176,7 @@ class CoordinatorController extends Controller
                 'day_id' => $timetable->day_id,
                 'time_slot_id' => $timetable->time_slot_id,
                 'color' => $timetable->color ?? '#000000',
-                // Relations complètes
+                // Relations complètes pour l'interface
                 'class' => $timetable->class,
                 'course' => $timetable->course,
                 'teacher' => $timetable->teacher,
@@ -150,6 +191,9 @@ class CoordinatorController extends Controller
         }
     }
 
+    /**
+     * Fonction de debug pour logger les données de présence
+     */
     private function debugAttendanceData($timetable, $student, $teacher, $status)
     {
         \Log::info('Données de présence:', [
@@ -163,12 +207,18 @@ class CoordinatorController extends Controller
         ]);
     }
 
+    /**
+     * Affiche le formulaire de justification d'absence
+     * 
+     * @param Attendance $attendance L'absence à justifier
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function showJustifyAbsence(Attendance $attendance)
     {
-        // Charger toutes les relations nécessaires
+        // Chargement des relations pour la vue
         $attendance->load(['student.user', 'timetable.course', 'teacher.user']);
         
-        // Vérifier que l'absence n'est pas "present"
+        // Vérification du statut
         if ($attendance->status === 'present') {
             return redirect()->back()->with('error', 'Impossible de justifier une présence');
         }
@@ -176,6 +226,13 @@ class CoordinatorController extends Controller
         return view('coordinator.justify-absence', compact('attendance'));
     }
 
+    /**
+     * Traite la justification d'une absence
+     * 
+     * @param Request $request La requête avec les données de justification
+     * @param Attendance $attendance L'absence concernée
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function justifyAbsence(Request $request, Attendance $attendance)
     {
         $request->validate([
@@ -185,7 +242,7 @@ class CoordinatorController extends Controller
         try {
             DB::beginTransaction();
 
-            // Créer ou mettre à jour la justification
+            // Création/mise à jour de la justification
             $justification = Justification::updateOrCreate(
                 ['attendance_id' => $attendance->id],
                 [
@@ -195,14 +252,14 @@ class CoordinatorController extends Controller
                 ]
             );
 
-            // Log pour déboguer
+            // Log de debug
             Log::info('Justification créée/mise à jour', [
                 'attendance_id' => $attendance->id,
                 'justification_id' => $justification->id,
                 'justified_by' => auth()->id()
             ]);
 
-            // Créer les notifications
+            // Préparation des données pour les notifications
             $notificationData = [
                 'type' => 'absence_justified',
                 'student_name' => $attendance->student->user->name,
@@ -212,12 +269,11 @@ class CoordinatorController extends Controller
                 'justified_by' => auth()->user()->name
             ];
 
-            // Notifier l'étudiant
+            // Envoi des notifications aux concernés
             if ($attendance->student && $attendance->student->user) {
                 $attendance->student->user->notify(new AbsenceJustifiedNotification($notificationData));
             }
 
-            // Notifier l'enseignant
             if ($attendance->timetable && $attendance->timetable->teacher && $attendance->timetable->teacher->user) {
                 $attendance->timetable->teacher->user->notify(new AbsenceJustifiedNotification($notificationData));
             }
@@ -238,9 +294,14 @@ class CoordinatorController extends Controller
         }
     }
 
+    /**
+     * Affiche la liste des absences à traiter
+     * 
+     * @return \Illuminate\View\View
+     */
     public function attendanceIndex()
     {
-        // Récupérer toutes les absences non justifiées
+        // Récupération des absences non justifiées avec leurs relations
         $attendances = Attendance::with([
             'student.user', 
             'timetable' => function($query) {
@@ -256,7 +317,7 @@ class CoordinatorController extends Controller
         ->orderBy('marked_at', 'desc')
         ->paginate(15);
 
-        // Compter les absences en attente de justification
+        // Compteur pour le tableau de bord
         $pendingJustifications = Attendance::where('status', '!=', 'present')
             ->whereDoesntHave('justification')
             ->count();

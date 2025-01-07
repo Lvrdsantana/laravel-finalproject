@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Timetable;
-use App\Models\Teachers;
+use App\Models\Teachers; 
 use App\Models\Days;
 use App\Models\TimeSlots;
 use Illuminate\Support\Facades\Auth;
@@ -16,24 +16,43 @@ use Illuminate\Support\Str;
 use App\Notifications\StudentDroppedNotification;
 use Carbon\Carbon;
 
+/**
+ * Contrôleur pour gérer le tableau de bord des enseignants
+ * 
+ * Ce contrôleur gère :
+ * - L'affichage du tableau de bord avec les statistiques
+ * - La gestion des emplois du temps
+ * - La gestion des présences des étudiants
+ * - Les notifications
+ */
 class TeacherDashboardController extends Controller
 {
+    /**
+     * Affiche le tableau de bord principal de l'enseignant
+     * 
+     * Inclut :
+     * - Les statistiques globales (nombre d'étudiants, cours)
+     * - Les cours du jour
+     * - Les taux de présence par cours
+     * - Les prochains cours
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
+        // Vérifier que l'utilisateur est bien un enseignant
         $teacher = Auth::user()->teacher;
         if (!$teacher) {
             return redirect()->route('login')->with('error', 'Accès non autorisé');
         }
 
-        // Récupérer les emplois du temps
+        // Récupérer les emplois du temps avec les relations
         $timetables = Timetable::with(['class', 'course', 'timeSlot'])
             ->where('teacher_id', $teacher->id)
             ->get();
 
-        // Calculer le nombre total d'étudiants uniques
+        // Calculer les statistiques globales
         $totalStudents = $timetables->pluck('class.students')->flatten()->unique('id')->count();
-
-        // Calculer le nombre total de cours
         $totalCourses = $timetables->pluck('course.name')->unique()->count();
 
         // Récupérer les cours d'aujourd'hui
@@ -42,7 +61,7 @@ class TeacherDashboardController extends Controller
         $todayClasses = $timetables->where('day_id', $dayOfWeek)
             ->sortBy('timeSlot.start_time');
 
-        // Calculer les statistiques de présence
+        // Calculer les statistiques de présence pour chaque cours
         $attendanceStats = [];
         foreach ($timetables as $timetable) {
             $totalAttendances = Attendance::where('timetable_id', $timetable->id)->count();
@@ -59,11 +78,12 @@ class TeacherDashboardController extends Controller
         // Calculer la moyenne globale de présence
         $averageAttendance = count($attendanceStats) > 0 ? array_sum($attendanceStats) / count($attendanceStats) : 0;
 
-        // Récupérer les prochains cours (pour la semaine à venir)
+        // Récupérer les prochains cours pour la semaine à venir
         $upcomingLessons = collect();
         $startOfWeek = $today->copy()->startOfWeek();
         $endOfWeek = $today->copy()->endOfWeek();
 
+        // Parcourir chaque jour de la semaine
         for ($date = $startOfWeek; $date <= $endOfWeek; $date = $date->copy()->addDay()) {
             $dayLessons = $timetables->where('day_id', $date->dayOfWeek)
                 ->map(function ($timetable) use ($date) {
@@ -73,10 +93,12 @@ class TeacherDashboardController extends Controller
             $upcomingLessons = $upcomingLessons->concat($dayLessons);
         }
 
+        // Filtrer pour ne garder que les 5 prochains cours
         $upcomingLessons = $upcomingLessons->filter(function ($lesson) use ($today) {
             return $lesson->date->isAfter($today);
         })->sortBy('date')->take(5);
 
+        // Retourner la vue avec toutes les données
         return view('TeacherDashboard', compact(
             'timetables',
             'totalStudents',
@@ -88,6 +110,11 @@ class TeacherDashboardController extends Controller
         ));
     }
 
+    /**
+     * Affiche l'emploi du temps complet de l'enseignant
+     *
+     * @return \Illuminate\View\View
+     */
     public function timetable()
     {
         $teacher = Auth::user()->teacher;
@@ -105,6 +132,11 @@ class TeacherDashboardController extends Controller
         return view('teacher.timetable', compact('timetables', 'days', 'time_slots'));
     }
 
+    /**
+     * Affiche le profil de l'enseignant avec ses cours
+     *
+     * @return \Illuminate\View\View
+     */
     public function profile()
     {
         $teacher = Auth::user()->teacher;
@@ -119,23 +151,31 @@ class TeacherDashboardController extends Controller
         return view('teacher.profile', compact('teacher', 'timetables'));
     }
 
+    /**
+     * Affiche le formulaire de saisie des présences pour un cours
+     *
+     * @param Timetable $timetable Le créneau concerné
+     * @return \Illuminate\View\View
+     */
     public function showAttendance(Timetable $timetable)
     {
+        // Vérifier les droits d'accès
         $teacher = Auth::user()->teacher;
         if (!$teacher || $teacher->id !== $timetable->teacher_id) {
             return redirect()->route('login')->with('error', 'Accès non autorisé');
         }
 
-        // Vérifier si c'est un cours spécial
+        // Vérifier si c'est un cours spécial (Workshop, E-Learning)
         if (in_array($timetable->course->name, ['Workshop', 'E-Learning'])) {
             return redirect()->back()->with('error', 'La saisie des présences pour ce type de cours est réservée aux coordinateurs');
         }
 
-        // Vérifier si la séance est dans la période de 2 semaines
+        // Vérifier le délai de saisie (2 semaines)
         if (now()->subWeeks(2)->greaterThan(\Carbon\Carbon::parse($timetable->date))) {
             return redirect()->back()->with('error', 'La période de saisie est expirée');
         }
 
+        // Récupérer les étudiants et leurs présences
         $students = $timetable->class->students;
         $attendances = Attendance::where('timetable_id', $timetable->id)
             ->pluck('status', 'student_id')
@@ -144,6 +184,18 @@ class TeacherDashboardController extends Controller
         return view('teacher.attendance', compact('timetable', 'students', 'attendances'));
     }
 
+    /**
+     * Enregistre les présences pour un cours
+     * 
+     * Gère également :
+     * - Le calcul des statistiques de présence
+     * - La mise à jour des notes d'assiduité
+     * - L'envoi de notifications en cas de taux faible
+     *
+     * @param Request $request
+     * @param Timetable $timetable
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storeAttendance(Request $request, Timetable $timetable)
     {
         try {
@@ -184,7 +236,6 @@ class TeacherDashboardController extends Controller
                     });
 
                 $totalSessions = $attendanceQuery->count();
-
                 $presentSessions = $attendanceQuery->where('status', 'present')->count();
 
                 \Log::info('Statistiques calculées', [
@@ -230,13 +281,12 @@ class TeacherDashboardController extends Controller
                         'message' => "L'étudiant {$student->user->name} a été droppé du cours {$course->name} (Taux de présence: " . round($attendanceRate, 1) . "%)"
                     ];
 
-                    // Notifier les coordinateurs
+                    // Notifier les coordinateurs et l'enseignant
                     $coordinators = \App\Models\User::where('role', 'coordinators')->get();
                     foreach ($coordinators as $coordinator) {
                         $this->createNotification($coordinator, $notificationData);
                     }
 
-                    // Notifier l'enseignant
                     if ($course->teacher && $course->teacher->user) {
                         $this->createNotification($course->teacher->user, $notificationData);
                     }
@@ -256,11 +306,19 @@ class TeacherDashboardController extends Controller
         }
     }
 
-    // Nouvelle méthode pour créer les notifications
+    /**
+     * Crée une notification pour un utilisateur
+     * 
+     * Vérifie d'abord si une notification similaire existe déjà
+     * pour éviter les doublons
+     *
+     * @param User $user
+     * @param array $notificationData
+     */
     protected function createNotification($user, $notificationData)
     {
         try {
-            // Vérifier si une notification similaire existe déjà pour cet utilisateur
+            // Vérifier les doublons sur 24h
             $existingNotification = DB::table('notifications')
                 ->where('notifiable_id', $user->id)
                 ->where('data->student_name', $notificationData['student_name'])
@@ -269,7 +327,6 @@ class TeacherDashboardController extends Controller
                 ->exists();
 
             if (!$existingNotification) {
-                // Utiliser directement la classe StudentDroppedNotification
                 $notification = new \App\Notifications\StudentDroppedNotification(
                     $notificationData['student_name'],
                     $notificationData['course_name'],
@@ -292,6 +349,13 @@ class TeacherDashboardController extends Controller
         }
     }
 
+    /**
+     * Affiche la liste des notifications de l'enseignant
+     * 
+     * Les notifications sont paginées par 10
+     *
+     * @return \Illuminate\View\View
+     */
     public function notifications()
     {
         $teacher = Auth::user()->teacher;
@@ -299,14 +363,14 @@ class TeacherDashboardController extends Controller
             return redirect()->route('login')->with('error', 'Accès non autorisé');
         }
 
-        // Utiliser paginate directement sur la requête DB
+        // Récupérer les notifications paginées
         $notifications = \DB::table('notifications')
             ->where('notifiable_type', 'App\Models\User')
             ->where('notifiable_id', Auth::id())
             ->orderBy('created_at', 'desc')
-            ->paginate(10);  // Pagination ici avant de mapper
+            ->paginate(10);
 
-        // Transformer les résultats après la pagination
+        // Transformer les données pour l'affichage
         $notifications->getCollection()->transform(function ($notification) {
             return (object) [
                 'id' => $notification->id,

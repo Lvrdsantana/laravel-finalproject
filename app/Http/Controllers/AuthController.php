@@ -1,13 +1,119 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Auth;
+
+use App\Traits\SecureRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\Timetable;
 
 class AuthController extends Controller
 {
+    use SecureRequests;
 
+    protected $maxLoginAttempts = 5;
+    protected $lockoutTime = 300; // 5 minutes
+
+    /**
+     * Affiche le formulaire de connexion
+     */
+    public function showLoginForm()
+    {
+        return view('login');
+    }
+
+    /**
+     * Gère la tentative de connexion de l'utilisateur
+     * Redirige vers le tableau de bord approprié selon le rôle
+     */
+    public function login(Request $request)
+    {
+        try {
+            // Validation sécurisée des données
+            $credentials = $this->validateSecurely($request->only('email', 'password'), [
+                'email' => 'required|email|max:255',
+                'password' => 'required|string'
+            ]);
+
+            // Vérification des tentatives de connexion
+            if ($this->hasTooManyLoginAttempts($request)) {
+                $this->fireLockoutEvent($request);
+                return redirect()->route('login')
+                    ->withErrors(['email' => 'Too many login attempts. Please try again in ' . ceil($this->lockoutTime/60) . ' minutes.']);
+            }
+
+            if (Auth::attempt($credentials)) {
+                $user = Auth::user();
+
+                // Log de la connexion réussie
+                Log::info('Successful login', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'ip' => $request->ip()
+                ]);
+
+                if ($user->role == 'coordinators') {
+                    return redirect()->route('dashboard');
+                } elseif ($user->role == 'students') {
+                    return redirect()->route('studentDashboard');
+                } elseif ($user->role == 'teachers') {
+                    return redirect()->route('teacher.dashboard');
+                } elseif ($user->role == 'parents') {
+                    return redirect()->route('parent.dashboard');
+                }
+            }
+
+            // Incrémentation des tentatives de connexion
+            $this->incrementLoginAttempts($request);
+
+            // Log de la tentative échouée
+            Log::warning('Failed login attempt', [
+                'email' => $credentials['email'],
+                'ip' => $request->ip()
+            ]);
+
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Les informations de connexion sont incorrectes.'])
+                ->withInput($request->except('password'));
+
+        } catch (\Exception $e) {
+            Log::error('Login error', [
+                'message' => $e->getMessage(),
+                'ip' => $request->ip()
+            ]);
+
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Une erreur est survenue lors de la connexion.'])
+                ->withInput($request->except('password'));
+        }
+    }
+
+    /**
+     * Déconnecte l'utilisateur et invalide sa session
+     */
+    public function logout(Request $request)
+    {
+        $user = Auth::user();
+        
+        if ($user) {
+            Log::info('User logged out', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'ip' => $request->ip()
+            ]);
+        }
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login');
+    }
+
+    /**
+     * Affiche le tableau de bord de l'étudiant avec son emploi du temps
+     */
     public function studentDashboard()
     {
         $student = Auth::user()->student;
@@ -23,40 +129,10 @@ class AuthController extends Controller
         
         return view('StudentDashboard', compact('timetables'));
     }
-    public function showLoginForm()
-    {
-        return view('login');
-    }
 
-    public function login(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            if ($user->role == 'coordinators') {
-                return redirect()->route('dashboard');
-            } elseif ($user->role == 'students') {
-                return redirect()->route('studentDashboard');
-            } elseif ($user->role == 'teachers') {
-                return redirect()->route('teacher.dashboard');
-            } elseif ($user->role == 'parents') {
-                return redirect()->route('parent.dashboard');
-            }
-        }
-
-        // Message d'erreur si les informations de connexion ne sont pas correctes
-        return redirect()->route('login')->withErrors(['email' => 'Les informations de connexion sont incorrectes.']);
-    }
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/login');
-    }
-
+    /**
+     * Affiche le tableau de bord du professeur avec son emploi du temps
+     */
     public function teacherDashboard()
     {
         $teacher = Auth::user()->teacher;
@@ -70,5 +146,31 @@ class AuthController extends Controller
         
         return view('TeacherDashboard', compact('timetables'));
     }
- 
+
+    protected function hasTooManyLoginAttempts(Request $request)
+    {
+        $key = $this->throttleKey($request);
+        $attempts = cache()->get($key, 0);
+        return $attempts >= $this->maxLoginAttempts;
+    }
+
+    protected function incrementLoginAttempts(Request $request)
+    {
+        $key = $this->throttleKey($request);
+        $attempts = cache()->get($key, 0);
+        cache()->put($key, $attempts + 1, $this->lockoutTime);
+    }
+
+    protected function throttleKey(Request $request)
+    {
+        return 'login_attempts_' . $request->ip();
+    }
+
+    protected function fireLockoutEvent(Request $request)
+    {
+        Log::warning('Account locked due to too many login attempts', [
+            'ip' => $request->ip(),
+            'email' => $request->input('email')
+        ]);
+    }
 }
