@@ -222,7 +222,6 @@ graph TD
     A[Client Browser] --> B[Laravel Frontend]
     B --> C[Laravel Backend]
     C --> D[MySQL Database]
-    C --> E[Redis Cache]
     F[File Storage] --> C
     G[Email Service] --> C
 ```
