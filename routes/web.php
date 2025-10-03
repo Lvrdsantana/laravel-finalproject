@@ -103,13 +103,7 @@ Route::middleware(['auth'])->group(function () {
     })->name('notifications.mark-all-read');
 });
 
-// Routes publiques pour l'emploi du temps
-Route::group([], function () {
-    Route::post('/coordinators/timetable', [TimetableController::class, 'store'])->name('coordinators.timetable.store');
-    Route::put('/coordinators/timetable/{id}', [TimetableController::class, 'update'])->name('coordinators.timetable.update');
-    Route::delete('/coordinators/timetable/{id}', [TimetableController::class, 'destroy'])->name('coordinators.timetable.destroy');
-    Route::get('/coordinators/timetable/{id}/edit', [TimetableController::class, 'edit'])->name('coordinators.timetable.edit');
-});
+// Note: Les routes d'emploi du temps sont déjà définies dans le groupe middleware auth ci-dessus
 
 // Routes pour la gestion des présences par les coordinateurs
 Route::middleware(['auth'])->group(function () {
