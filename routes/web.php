@@ -76,8 +76,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Groupe de routes pour les enseignants
     Route::prefix('teacher')->group(function () {
-        Route::get('/', [TeacherDashboardController::class, 'index'])->name('teacher.dashboard');
-        Route::get('/dashboard', [AuthController::class, 'teacherDashboard'])->name('teacher.dashboard');
+        Route::get('/', [TeacherDashboardController::class, 'index'])->name('teacher.home');
         Route::get('/timetable', [TeacherDashboardController::class, 'timetable'])->name('teacher.timetable');
         Route::get('/profile', [TeacherDashboardController::class, 'profile'])->name('teacher.profile');
         Route::get('/attendance/{timetable}', [TeacherDashboardController::class, 'showAttendance'])->name('teacher.attendance');
