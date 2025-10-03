@@ -1,236 +1,217 @@
+# Système de Gestion Scolaire Laravel
 
-## 1. Présentation
-**Nom du projet** : IFRAN School Management System  
-**Date** : 2024  
-**Développeurs** : [ABOYA CYRIL]  
-**Adresse Github** : [[https://github.com/Lvrdsantana/laravel-finalproject](https://github.com/Lvrdsantana/laravel-finalproject)]
+## 📚 À propos du projet
 
-## 2. Analyse Client
-Le projet IFRAN est un système de gestion scolaire complet qui répond aux besoins suivants :
-- Gestion des emplois du temps pour différentes classes
-- Suivi des présences et absences des étudiants
-- Gestion des utilisateurs avec différents rôles (étudiants, enseignants, coordinateurs, parents)
-- Système de notifications pour les absences et événements importants
-- Génération de statistiques et rapports
+Ce système de gestion scolaire est une application web développée avec Laravel, conçue pour gérer efficacement les présences, les emplois du temps et la communication entre les différents acteurs de l'établissement scolaire.
 
-## 3. Choix Technologiques
+## 🔑 Fonctionnalités principales
 
-### Frontend
-- **Framework** : Laravel  + Bootstrap 5
-- **JavaScript** : Vanilla JS + jQuery
-- **CSS** : Custom CSS + Bootstrap
-- **Bibliothèques** : 
-  - Chart.js pour les graphiques
-  - Font Awesome pour les icônes
-  - Particles.js pour les animations
+### 👥 Gestion des utilisateurs
+- Multi-rôles : Étudiants, Enseignants, Coordinateurs, Parents
+- Système d'authentification sécurisé
+- Gestion des états des comptes (actif/inactif)
+- Suivi de l'activité des utilisateurs
 
-**Motivation** : 
-- Intégration native avec Laravel
-- Performance optimale
-- Facilité de maintenance
-- Compatibilité navigateurs
+### 📅 Gestion des emplois du temps
+- Création et modification des emplois du temps
+- Historique des modifications
+- Gestion des créneaux horaires
+- Attribution des cours aux enseignants
 
-### Backend
-- **Framework** : Laravel 11.21.0
-- **Base de données** : SQLite
-- **Serveur** : Local
+### ✓ Gestion des présences
+- Suivi des présences en temps réel
+- Système de justification d'absences
+- Calcul automatique des taux de présence
+- Notifications automatiques pour les absences
 
-**Motivation** :
-- Framework PHP mature et sécurisé
-- Système de migration robuste
-- Excellente documentation
+### 📊 Système de notification
+- Notifications pour les étudiants "droppés"
+- Alertes de justification d'absence
+- Notifications en temps réel pour les parents
 
-## 4. Architecture Technique
+## 🛠 Architecture technique
 
-```mermaid
-graph TD
-    A[Client Browser] --> B[Laravel Frontend]
-    B --> C[Laravel Backend]
-    C --> D[MySQL Database]
-    F[File Storage] --> C
-    G[Email Service] --> C
+### Models
+- User
+- Students
+- Teachers
+- ParentModel
+- Timetable
+- TimeSlots
+- TimetableHistory
+- StudentPresence
+
+### Notifications
+- StudentDroppedNotification
+- JustificationNotification
+
+### Middleware
+- RoleValidation (gestion des accès basée sur les rôles)
+
+## 💻 Interface utilisateur
+- Dashboard personnalisé pour chaque type d'utilisateur
+- Interface responsive
+- Design moderne avec CSS personnalisé
+- Interactions dynamiques avec JavaScript
+
+## 🔒 Sécurité
+- Validation des rôles utilisateur
+- Gestion des sessions
+- Déconnexion automatique après inactivité
+- Protection contre les accès non autorisés
+
+## 📱 Vues principales
+- Login
+- Dashboard (personnalisé par rôle)
+- Gestion des utilisateurs
+- Emploi du temps des enseignants
+- Interface parent
+- Interface étudiant
+
+## 🚀 Installation
+
+1. Cloner le repository
+```bash
+git clone [url-du-repo]
 ```
 
-## 5. Stratégie de Sécurité
-
-### Authentification
-- Sessions chiffrées
-- Protection CSRF sur tous les formulaires
-- Middleware d'authentification
-
-### Architecture Public/Privé
-- Routes protégées par middleware auth
-- Vérification des rôles pour chaque action
-
-### Mots de passe
-- Hashage bcrypt
-
-
-### Base de données
-- SQLite
-- MySQL pour la production
-
-### Frontend
-- Protection XSS
-- Headers de sécurité
-- CSP configuré
-
-## 6. Déploiement
-
+2. Installer les dépendances
 ```bash
-# Prérequis
-PHP >= 8.1
-Composer
-Node.js >= 16
-MySQL >= 8.0
-
-# Installation
-git clone [repository]
-cd [project]
 composer install
 npm install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan db:seed
-npm run build
-
-# Configuration
-- Configurer .env
-- Configurer le virtual host
-- Configurer les permissions storage/
 ```
 
-## 7. Méthode de Travail
-- Méthodologie Scrum
-- Sprints de 2 semaines
-- Code review systématique
+3. Configurer l'environnement
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
+4. Configurer la base de données dans .env
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
 
-## 8. Outils Utilisés
-- **IDE** : VS Code, 
-- **Versioning** : Git, GitHub
-- **CI/CD** : GitHub Actions
-- **Tests** : Environnement de test local
-- **Documentation** : Laraveldocs 
+5. Lancer les migrations
+```bash
+php artisan migrate
+```
 
-## 9. Évaluation du Temps de Travail
+6. Lancer le serveur
+```bash
+php artisan serve
+```
 
-| Tâche | Jours |
-|-------|--------|
-| Setup initial | 2 |
-| Auth system | 3 |
-| User Management | 5 |
-| Timetable System | 7 |
-| Attendance System | 5 |
-| Statistics | 4 |
-| Testing | 3 |
-| Documentation | 2 |
-| **Total** | **31** |
+## 📋 Prérequis
+- PHP >= 8.0
+- Composer
+- MySQL
+- Node.js & NPM
 
-## 10. Liste Fonctionnelle
+## 🚀 Déploiement sur Railway
 
-### Système d'authentification
-- [x] Login multi-rôles
-- [x] Gestion des sessions
-- [x] Récupération mot de passe
+### Prérequis
+1. Compte Railway : [railway.app](https://railway.app)
+2. GitHub repository avec votre projet
 
-### Gestion des utilisateurs
-- [x] CRUD utilisateurs
-- [x] Attribution des rôles
-- [x] Gestion des profils
+### Étapes de déploiement
 
-### Emploi du temps
-- [x] Création/modification des emplois du temps
-- [x] Vue par classe/enseignant
-- [x] Historique des modifications
+1. **Connectez-vous à Railway**
+   - Allez sur [railway.app](https://railway.app)
+   - Connectez-vous avec GitHub
 
-### Gestion des présences
-- [x] Marquage des présences
-- [x] Justification des absences
-- [x] Notifications automatiques
+2. **Créez un nouveau projet**
+   ```bash
+   # Dans Railway Dashboard
+   - Cliquez sur "New Project"
+   - Sélectionnez "Deploy from GitHub repo"
+   - Choisissez votre repository
+   ```
 
-### Statistiques
-- [x] Taux de présence
-- [x] Rapports par classe
-- [x] Graphiques d'analyse
+3. **Configurez les variables d'environnement**
+   ```bash
+   # Dans Settings → Variables, ajoutez :
+   APP_NAME=VotreNomApp
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://votre-app.up.railway.app
+   DB_CONNECTION=sqlite
+   
+   # Note : SQLite utilise un fichier local, pas besoin de serveur MySQL
+   ```
 
-## 11. Recettage
+5. **Générez la clé d'application**
+   ```bash
+   # Localement, générez une clé :
+   php artisan key:generate --show
+   
+   # Ajoutez-la dans Railway Variables :
+   APP_KEY=base64:votre_clé_générée
+   ```
 
-| Fonctionnalité | Statut | Notes |
-|----------------|--------|--------|
-| Login | ✅ | Opérationnel |
-| Création utilisateur | ✅ | Opérationnel |
-| Emploi du temps | ✅ | Opérationnel |
-| Présences | ✅ | Opérationnel |
-| Notifications | ✅ | Opérationnel |
-| Statistiques | ✅ | Opérationnel |
-| Export données | ❌ |  PDF/Excel |
-| API Mobile | ❌ | Non développé | 
+6. **Déployez l'application**
+   ```bash
+   # Poussez votre code sur GitHub
+   git add .
+   git commit -m "Préparation déploiement Railway"
+   git push origin main
+   
+   # Railway déploiera automatiquement
+   ```
 
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+### Variables d'environnement importantes
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+| Variable | Description | Exemple |
+|----------|-------------|---------|
+| `APP_KEY` | Clé de chiffrement | `base64:...` |
+| `APP_URL` | URL de votre app | `https://app.railway.app` |
+| `DB_CONNECTION` | Type de BDD | `sqlite` |
+| `SESSION_DRIVER` | Driver de session | `database` |
+| `QUEUE_CONNECTION` | Type de queue | `database` |
 
-## About Laravel
+### Commandes utiles
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```bash
+# Voir les logs
+railway logs
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+# Exécuter des commandes
+railway run php artisan migrate
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+# Ouvrir l'application
+railway open
+```
 
-## Learning Laravel
+### Troubleshooting
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**Erreur de migration ?**
+```bash
+railway run php artisan migrate:fresh --seed
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**Problème de cache ?**
+```bash
+railway run php artisan config:clear
+railway run php artisan cache:clear
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Vérifier les logs ?**
+```bash
+railway logs --follow
+```
 
-## Laravel Sponsors
+### Liens utiles
+- [Documentation Railway](https://docs.railway.app/)
+- [Railway Discord](https://discord.gg/railway)
+- [Laravel Deployment](https://laravel.com/docs/deployment)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🤝 Contribution
+Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou à proposer une pull request.
 
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 📝 License
+Ce projet est sous licence MIT.
