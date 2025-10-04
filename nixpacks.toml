@@ -2,7 +2,7 @@
 nixPkgs = ['php82', 'php82Packages.composer']
 
 [phases.install]
-cmds = ['composer install --no-dev --optimize-autoloader', 'touch database/database.sqlite']
+cmds = ['composer install --no-dev --optimize-autoloader']
 
 [phases.build]
 cmds = [
@@ -11,5 +11,5 @@ cmds = [
 ]
 
 [start]
-cmd = 'php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT'
+cmd = 'chmod 777 storage -R && chmod 666 database/database.sqlite && php artisan serve --host=0.0.0.0 --port=$PORT'
 
