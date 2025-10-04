@@ -30,11 +30,16 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
-            // Validation sécurisée des données
-            $credentials = $this->validateSecurely($request->only('email', 'password'), [
+            // Validation des données (sans nettoyer le mot de passe)
+            $request->validate([
                 'email' => 'required|email|max:255',
                 'password' => 'required|string'
             ]);
+            
+            $credentials = [
+                'email' => $request->email,
+                'password' => $request->password
+            ];
 
             // Vérification des tentatives de connexion
             if ($this->hasTooManyLoginAttempts($request)) {
